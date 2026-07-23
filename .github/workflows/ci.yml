@@ -1,0 +1,28 @@
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build_test_job:
+    name: 'Build and test job'
+    runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+          os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+
+    - name: 'Checking out repo code'
+      uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
+
+    - name: 'Validate build'
+      run: |
+        npm ci
+        npm run build
+
+    - name: 'Run L0 tests'
+      run: |
+        npm run test

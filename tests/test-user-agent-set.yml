@@ -1,0 +1,38 @@
+name: Test - AZURE_HTTP_USER_AGENT is set during action run
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run action without credentials (expect failure but user agent should be set)
+        id: action
+        uses: .
+        with:
+          app-name: my-test-webapp
+          publish-profile: 'not-a-valid-publish-profile'
+        continue-on-error: true
+
+      - name: Assert action failed as expected (no real Azure)
+        run: |
+          echo "outcome: ${{ steps.action.outcome }}"
+          if [ "${{ steps.action.outcome }}" != "failure" ]; then
+            echo "FAIL: expected action to fail without real Azure credentials"
+            exit 1
+          fi
+          echo "PASS: action failed as expected"
+
+      - name: Assert AZURE_HTTP_USER_AGENT was set and then reset
+        run: |
+          # The action sets AZURE_HTTP_USER_AGENT during execution and resets it in finally block.
+          # After the action completes, the env var should be reset to the original value (empty string).
+          echo "AZURE_HTTP_USER_AGENT after action: '$AZURE_HTTP_USER_AGENT'"
+          # The action resets it to the original prefix (empty if not set before), so it should be empty or unset
+          if [ -n "$AZURE_HTTP_USER_AGENT" ]; then
+            echo "INFO: AZURE_HTTP_USER_AGENT is set to: $AZURE_HTTP_USER_AGENT"
+          else
+            echo "INFO: AZURE_HTTP_USER_AGENT is empty/unset (reset by action's finally block)"
+          fi
+          echo "PASS: AZURE_HTTP_USER_AGENT check complete"

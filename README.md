@@ -8,6 +8,7 @@ Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at
 
 | Version | Tag | Upstream commit |
 |---------|-----|-----------------|
+| v2 | [`v2`](https://github.com/chainguard-actions/azure-webapps-deploy/tree/v2) | [`5cfb776`](https://github.com/azure/webapps-deploy/commit/5cfb776471c748b351e1ebf5770e208a54ace016) |
 | v2.2.19 | [`v2.2.19`](https://github.com/chainguard-actions/azure-webapps-deploy/tree/v2.2.19) | [`5cfb776`](https://github.com/azure/webapps-deploy/commit/5cfb776471c748b351e1ebf5770e208a54ace016) |
 
 ## Privacy

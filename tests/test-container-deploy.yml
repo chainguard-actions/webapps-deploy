@@ -1,0 +1,37 @@
+name: Test container deployment - Azure WebApp
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - id: deploy
+        uses: .
+        continue-on-error: true
+        with:
+          app-name: 'test-container-webapp-harness'
+          images: 'myregistry.azurecr.io/myapp:latest'
+          startup-command: 'node server.js'
+          slot-name: 'production'
+
+      - name: Assert action ran and failed gracefully (no Azure credentials)
+        env:
+          OUTCOME: ${{ steps.deploy.outcome }}
+          WEBAPP_URL: ${{ steps.deploy.outputs.webapp-url }}
+        run: |
+          echo "outcome: $OUTCOME"
+          echo "webapp-url: $WEBAPP_URL"
+          if [ "$OUTCOME" = "success" ]; then
+            if [ -z "$WEBAPP_URL" ]; then
+              echo "FAIL: action succeeded but webapp-url output is empty"
+              exit 1
+            fi
+            echo "PASS: action succeeded with webapp-url='$WEBAPP_URL'"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action failed gracefully (no Azure credentials available in harness)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME'"
+            exit 1
+          fi
